@@ -1,7 +1,12 @@
 ---
 name: woop-daily
+version: 1.0.0
 description: |
   每日 WOOP 练习引导。帮用户花 5 分钟把愿望转化为真实行动，基于 Oettingen 团队心智对比研究（Mental Contrasting + Implementation Intentions）。
+metadata:
+  openclaw:
+    emoji: 🎯
+    homepage: https://github.com/ReffWu/woop-daily
 when_to_use: |
   用户说"做 WOOP"、"WOOP 一下"、"开始练习"、"帮我设定目标"、"我想推进某事"、
   "我想养成某习惯"、"回顾 WOOP"、"我今天想做 X"时触发。
