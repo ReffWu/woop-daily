@@ -1,6 +1,10 @@
 # WOOP Daily — AI Skill
 
-> 基于 Gabriele Oettingen 团队 20 余年科学研究的每日目标实现练习，每天 5 分钟，对话式引导。
+> 你是否想早睡，却每晚刷手机停不下来？
+> 你是否定了目标，却一拖再拖迟迟没有开始？
+> 你是否想养成一个习惯，坚持了三天就放弃了？
+>
+> **这个 skill 可以帮助你。** 每天 5 分钟，基于 20 余年科学研究，把愿望真正变成行动。
 
 [![AgentSkills Compatible](https://img.shields.io/badge/AgentSkills-compatible-4A90D9?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiAyQzYuNDggMiAyIDYuNDggMiAxMnM0LjQ4IDEwIDEwIDEwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMiAyek0xMCAxN2wtNS01IDEuNDEtMS40MUwxMCAxNC4xN2w3LjU5LTcuNTlMMTkgOGwtOSA5eiIvPjwvc3ZnPg==)](https://agentskills.io)
 
