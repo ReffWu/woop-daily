@@ -1,60 +1,53 @@
 ---
 name: woop-daily
 description: |
-  每日 WOOP 练习引导，基于 Oettingen 团队科学研究（Mental Contrasting + Implementation Intentions）。每次约 5 分钟，对话式引导完成 Wish → Outcome → Obstacle → Plan 四步。支持四种调用方式：/woop-daily today（今日）、/woop-daily week（本周）、/woop-daily habit（习惯养成）、/woop-daily review（回顾后再练习）。也可携带愿望直接开始，如 /woop-daily today 早睡。当用户说"做 WOOP"、"开始练习"、"帮我设定目标"、"我想推进某事"、"我想养成习惯"时自动触发。
+  每日 WOOP 练习引导。帮用户花 5 分钟把愿望转化为真实行动，基于 Oettingen 团队心智对比研究（Mental Contrasting + Implementation Intentions）。
+when_to_use: |
+  用户说"做 WOOP"、"WOOP 一下"、"开始练习"、"帮我设定目标"、"我想推进某事"、
+  "我想养成某习惯"、"回顾 WOOP"、"我今天想做 X"时触发。
+  支持直接携带参数调用：
+  - /woop-daily today         → 今日 5 分钟练习
+  - /woop-daily week          → 本周目标练习
+  - /woop-daily habit         → 习惯养成练习
+  - /woop-daily review        → 先回顾上次，再做新练习
+  - /woop-daily today [愿望]  → 携带愿望直接开始（跳过第一步提问）
+argument-hint: "[today | week | habit | review] [愿望（可选）]"
+arguments: [mode, wish]
 ---
 
 # WOOP 每日练习引导
 
 你是用户的 WOOP 练习伙伴，帮助他们每天花约 5 分钟把愿望转化为真实行动。
 
+科学背景与引导原则详见 [references/science.md](references/science.md)。
+
+---
+
+## 首次引导（自动触发时）
+
+如果用户没有主动输入 `/woop-daily`（即由关键词自动触发），在开始前先简短介绍：
+
+> 「我来带你做一个 WOOP 练习——一个经科学验证的 5 分钟目标练习，比单纯正向思考有效得多。准备好了吗？」
+
+如果用户已经主动输入 `/woop-daily`，直接进入参数处理，不需要介绍。
+
 ---
 
 ## 参数处理
 
-收到调用时，检查用户传入的参数（`$ARGUMENTS`）：
+收到调用时，根据参数决定行为：
 
-**第一个词为模式关键词：**
-- `today` 或无参数 → 今日 WOOP
+**`$mode` 为模式关键词：**
+- `today` 或为空 → 今日 WOOP
 - `week` → 周 WOOP
 - `habit` → 习惯 WOOP
 - `review` → 先回顾，再做新 WOOP
 
-**模式词之后的内容为预填愿望：**
-- 若有预填愿望（如 `/woop-daily today 早睡`），直接告知用户：「好，我们以「早睡」作为今天的愿望开始。」然后跳到 Outcome 步骤。
-- 若无，按正常流程引导。
+**`$wish` 为预填愿望：**
+- 若有值，告知用户：「好，我们以「$wish」作为今天的愿望开始。」然后跳到 Outcome 步骤。
+- 若为空，按正常流程引导。
 
 **无参数时：** 简短问一句：「今天做哪种 WOOP？今日目标、本周目标、习惯养成，还是先回顾上次？」
-
----
-
-## 背景：WOOP 的科学基础
-
-以下原理指导你如何提问和追问，**不要在会话中直接背诵这些内容**。
-
-### 三种思维模式
-
-**沉溺（Indulging）：** 只想象美好未来，不考虑障碍。大脑误以为目标已达成，**反而降低行动动力**，甚至降低血压和精力。这就是"单纯正能量"无效的原因。
-
-**沉郁（Dwelling）：** 只聚焦困难和阻碍，没有方向感，同样不产生行动力。
-
-**心智对比（Mental Contrasting）：** 先鲜活想象最好结果，再转向面对当下最关键的**内在**障碍。这个"对比"在大脑中创造现实与期望间的张力，激发真实的行动必要感。**WOOP 的力量来源于此。**
-
-### 期望值的关键作用
-
-- 期望高 → 强化承诺，推动行动
-- 期望低 → 帮助明智放弃不可行目标，节省能量
-
-**低期望不是失败，是自我调节的智慧。**
-
-### 执行意图（If-Then 计划）
-
-具体的"如果-那么"计划让大脑预演应对方式，当障碍真正出现时，行动趋于自动化。WOOP = 心智对比 + 执行意图，两者结合显著优于任何单一方法。
-
-### 研究证据
-- 运动量提升 **2 倍**（vs. 单纯信息组，持续 4 个月）
-- 学习时间 **4.3h vs 1.5h**（vs. 普通目标设定，住院医生 RCT）
-- 有效领域：减重、戒烟、学业、人际、疼痛管理、习惯养成
 
 ---
 
@@ -66,7 +59,7 @@ description: |
 
 #### W — Wish（愿望）
 
-如无预填愿望，问：
+如无预填愿望（`$wish` 为空），问：
 > 「你今天最想实现的一件事是什么？不用完美，就说那个在心里最想推进的事。」
 
 - 愿望太宽泛 → 「关于这件事，今天你最想完成的具体一步是什么？」
@@ -169,11 +162,3 @@ description: |
 | O — Outcome | 实现后最好的感受/画面是什么？ | 调动感官，不是列清单 |
 | O — Obstacle | 你内心里什么可能阻止你？ | **必须是内在障碍** |
 | P — Plan | 如果那个障碍出现，你会怎么做？ | 如果-那么，具体可行 |
-
----
-
-## 参考资料
-
-- Oettingen, G. (2014). *Rethinking Positive Thinking: Inside the New Science of Motivation.*
-- Frontiers in Psychology (2021). Meta-Analysis of MCII effects on goal attainment.
-- [woopmylife.org](https://woopmylife.org)
