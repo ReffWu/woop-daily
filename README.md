@@ -5,6 +5,8 @@
 > 你是否想养成一个习惯，坚持了三天就放弃了？
 >
 > **这个 skill 可以帮助你。** 每天 5 分钟，基于 20 余年科学研究，把愿望真正变成行动。
+>
+> 不是一个 todo list 工具，是一次有节奏的真实对话。设计哲学借鉴自 Anthropic 官方 skills、Headspace/Noom 的 onboarding 心理学，以及疗愈聊天机器人的对话研究。
 
 [![AgentSkills Compatible](https://img.shields.io/badge/AgentSkills-compatible-4A90D9?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiAyQzYuNDggMiAyIDYuNDggMiAxMnM0LjQ4IDEwIDEwIDEwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMiAyek0xMCAxN2wtNS01IDEuNDEtMS40MUwxMCAxNC4xN2w3LjU5LTcuNTlMMTkgOGwtOSA5eiIvPjwvc3ZnPg==)](https://agentskills.io)
 
@@ -33,24 +35,20 @@ WOOP（Wish · Outcome · Obstacle · Plan）是纽约大学心理学教授 Gabr
 | `/woop-daily week` | 本周目标 WOOP |
 | `/woop-daily habit` | 习惯养成 WOOP |
 | `/woop-daily review` | 先回顾上次，再做新练习 |
+| `/woop-daily reminder` | 设置每日定时提醒（基于 OpenClaw cron） |
 | `/woop-daily today 早睡` | 携带愿望直接开始，跳过第一步提问 |
 
 AI 也会根据上下文**自动触发**（无需输入 `/`），当你说"我想推进某事"、"帮我设定目标"、"做个 WOOP"时。
 
 ## 安装
 
-### 方式一：Claude Code（命令行，推荐）
+### 方式一：ClawHub（推荐，一行）
 
 ```bash
-mkdir -p ~/.claude/skills/woop-daily && \
-curl -o ~/.claude/skills/woop-daily/SKILL.md \
-  https://raw.githubusercontent.com/ReffWu/woop-daily/main/SKILL.md && \
-mkdir -p ~/.claude/skills/woop-daily/references && \
-curl -o ~/.claude/skills/woop-daily/references/science.md \
-  https://raw.githubusercontent.com/ReffWu/woop-daily/main/references/science.md
+clawhub install woop-daily
 ```
 
-或 clone 整个仓库：
+### 方式二：Claude Code（命令行）
 
 ```bash
 git clone https://github.com/ReffWu/woop-daily.git ~/.claude/skills/woop-daily
@@ -114,21 +112,34 @@ Claude：很好。今天的 WOOP：
 
 ## Skill 设计原则
 
-这个 skill 的引导逻辑完全基于原始研究：
+### 心理学层面（基于原始研究）
+- **Obstacle 必须是内在的**：外部环境很难控制，内心障碍才能真正面对和计划
+- **Outcome 用感官想象**：不是列清单，而是调动感受——心智对比起作用的关键
+- **期望值感知**：信心低时 WOOP 帮你明智放弃，而不是硬撑
+- **一次只做一个**：聚焦比多多益善有效
 
-- **Obstacle 步骤必须是内在障碍**：外部环境很难控制，内心障碍才能被真正面对和计划
-- **Outcome 使用感官想象**：不是列清单，而是调动感受——这是心智对比发挥作用的关键
-- **期望值感知**：如果你对某个愿望信心很低，WOOP 帮你明智放弃，而不是强迫你硬撑
-- **一次只做一个 WOOP**：聚焦比多多益善更有效
+### 对话设计层面（v2.0 重塑）
+- **Listen first, then guide**：每次 substantive share 之后先简短承认，再问下一个问题
+- **Earned empathy**：先承认用户的挣扎（包括外部障碍），再温和拉回到框架
+- **Read entry energy**：散乱型、专注型、好奇型、情绪型、回归型——5 种状态 5 种开场
+- **Sit with silence**：用户说"不知道"时，不要急推
+- **Mark the close**：仪式化收尾（"你装了一个心理回路"），不要用日志记录作为结尾
+- **Don't sell**：永不吹"科学验证"。工作本身就是证据
 
 ## 文件结构
 
 ```
 woop-daily/
-├── SKILL.md              # 主文件，所有 AI 工具的入口
+├── SKILL.md                              # 主文件 / 流程地图
 └── references/
-    └── science.md        # 科学背景（AI 内部参考，不展示给用户）
+    ├── conversation-craft.md             # 对话艺术：节奏、承认、特殊情况
+    ├── science.md                        # 心理机制：每一步的 why
+    └── skill-design-principles.md        # 通用经验：构建任何对话型 skill 的最佳实践
 ```
+
+`SKILL.md` 是入口（地图）。三份 reference 是灵魂层——尤其 `conversation-craft.md` 决定了对话的真正品质（何时倾听、何时承认、何时沉默、8 种特殊情况的处理）。
+
+`skill-design-principles.md` 是从 Anthropic 官方 skills、Garry Tan、Zara Zhang、高转化 onboarding 设计、疗愈聊天机器人研究中沉淀的通用经验，可被任何对话型 skill 复用。
 
 ## 理论基础
 
