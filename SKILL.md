@@ -1,6 +1,6 @@
 ---
 name: woop-daily
-version: 1.1.0
+version: 1.2.0
 description: |
   每日 WOOP 练习引导。帮用户花 5 分钟把愿望转化为真实行动，基于 Oettingen 团队心智对比研究（Mental Contrasting + Implementation Intentions）。
 metadata:
@@ -16,7 +16,8 @@ when_to_use: |
   - /woop-daily habit         → 习惯养成练习
   - /woop-daily review        → 先回顾上次，再做新练习
   - /woop-daily today [愿望]  → 携带愿望直接开始（跳过第一步提问）
-argument-hint: "[today | week | habit | review] [愿望（可选）]"
+  - /woop-daily reminder      → 设置每日定时提醒（基于 OpenClaw cron）
+argument-hint: "[today | week | habit | review | reminder] [愿望（可选）]"
 arguments: [mode, wish]
 allowed-tools: Bash Write
 ---
@@ -33,7 +34,7 @@ allowed-tools: Bash Write
 
 ```!
 # 检查更新
-CURRENT_VERSION="1.1.0"
+CURRENT_VERSION="1.2.0"
 SKILL_DIR="${CLAUDE_SKILL_DIR:-$(dirname "$0")}"
 LATEST=$(clawhub inspect woop-daily 2>/dev/null | grep "Latest:" | awk '{print $2}' | tr -d '[:space:]')
 if [ -n "$LATEST" ] && [ "$LATEST" != "$CURRENT_VERSION" ]; then
@@ -91,6 +92,7 @@ fi
 - `week` → 周 WOOP
 - `habit` → 习惯 WOOP
 - `review` → 先回顾，再做新 WOOP
+- `reminder` → 设置每日定时提醒
 
 **`$wish` 为预填愿望：**
 - 若有值，告知用户：「好，我们以「$wish」作为今天的愿望开始。」然后跳到 Outcome 步骤。
@@ -181,6 +183,57 @@ fi
 - 忘了/没用到 → 不批评，探索愿望是否需要重新评估，或计划是否要更具体
 
 然后正常开始新的 WOOP。
+
+---
+
+### 模式五：设置每日提醒（reminder）
+
+帮用户设置一个每日定时提醒，让 WOOP 成为真正的习惯，而不是靠自觉。
+
+**第一步：问时间**
+
+> 「你想每天几点收到 WOOP 提醒？比如早上 8 点、午休 12 点、晚上 9 点都可以。」
+
+**第二步：确认频率**
+
+> 「每天都提醒，还是只在工作日（周一到周五）？」
+
+**第三步：问时区**（如果用户没有提，默认用系统时区）
+
+> 「你在哪个时区？比如北京时间（Asia/Shanghai）、纽约（America/New_York）。」（如不确定可跳过，默认使用本机时区）
+
+**第四步：执行 cron 设置**
+
+根据用户的回答，用 Bash 工具运行以下命令（将时间和时区替换为实际值）：
+
+```
+openclaw cron add \
+  --name "WOOP Daily Reminder" \
+  --cron "<cron表达式>" \
+  --tz "<时区>" \
+  --session isolated \
+  --message "⏰ 时间做今天的 WOOP 了！输入 /woop-daily today 开始，5 分钟就够。" \
+  --announce
+```
+
+cron 表达式规则：
+- 每天早 8 点 → `0 8 * * *`
+- 工作日早 8 点 → `0 8 * * 1-5`
+- 每天晚 9 点 → `0 21 * * *`
+
+**第五步：确认并告知管理方式**
+
+命令成功后，告知用户：
+
+> 「好，每天 [时间] 我会提醒你做 WOOP 🎯
+>
+> 需要修改或关闭提醒时，告诉我"取消 WOOP 提醒"就行。」
+
+如果用户之后说"取消提醒"或"关掉提醒"，运行：
+```
+openclaw cron remove "WOOP Daily Reminder"
+```
+并确认：「WOOP 每日提醒已关闭。需要重新开启时，输入 /woop-daily reminder 就行。」
 
 ---
 
