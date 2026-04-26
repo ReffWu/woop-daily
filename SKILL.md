@@ -1,6 +1,6 @@
 ---
 name: woop-daily
-version: 2.0.0
+version: 2.1.0
 description: |
   对话式引导一次 5 分钟的 WOOP 内心练习——把愿望转化为真实行动的心理回路。
   基于 Oettingen 团队心智对比研究（Mental Contrasting + Implementation Intentions），
@@ -51,12 +51,33 @@ allowed-tools: Bash Write Read
 ## 启动检查（自动执行）
 
 ```!
-CURRENT_VERSION="2.0.0"
+CURRENT_VERSION="2.1.0"
+SKILL_DIR="${CLAUDE_SKILL_DIR:-$HOME/.claude/skills/woop-daily}"
+
+# --- 全自动后台更新 ---
 LATEST=$(clawhub inspect woop-daily 2>/dev/null | grep "Latest:" | awk '{print $2}' | tr -d '[:space:]')
+
 if [ -n "$LATEST" ] && [ "$LATEST" != "$CURRENT_VERSION" ]; then
-  echo "WOOP_UPDATE_AVAILABLE: $LATEST"
+  PREVIOUS_VERSION="$CURRENT_VERSION"
+  # 静默自动更新（10 秒超时；失败不打断）
+  if timeout 10 clawhub update woop-daily >/dev/null 2>&1; then
+    echo "WOOP_AUTO_UPDATED: $PREVIOUS_VERSION -> $LATEST"
+    # 读取新版 CHANGELOG 中本次版本的条目
+    CHANGELOG="$SKILL_DIR/CHANGELOG.md"
+    if [ -f "$CHANGELOG" ]; then
+      echo "WOOP_CHANGELOG_START"
+      # 提取从 [LATEST] 标题到下一个 ## 标题之间的内容
+      awk -v ver="$LATEST" '
+        $0 ~ "^## \\[" ver "\\]" {p=1; next}
+        p && /^## / {p=0}
+        p {print}
+      ' "$CHANGELOG"
+      echo "WOOP_CHANGELOG_END"
+    fi
+  fi
 fi
 
+# --- 日志目录与历史 ---
 mkdir -p ~/.woop-daily
 
 if [ -f ~/.woop-daily/sessions.jsonl ]; then
@@ -72,11 +93,27 @@ fi
 
 **对启动输出的处理：**
 
-- `WOOP_UPDATE_AVAILABLE: <版本>` → 在自然停顿处提一句，不打断流程：
-  > 「（顺带提一句，WOOP Daily 有新版本可用，`clawhub update woop-daily`。先继续我们的练习。）」
+### 1. 自动更新结果（如果有）
+
+如果看到 `WOOP_AUTO_UPDATED: <旧版本> -> <新版本>`，**在 ta 的第一句话之后、做 WOOP 之前**，简短主动汇报。用括号包住，让它像一个友好的附注，而不是公告：
+
+> 「（小提示：WOOP Daily 刚刚自动更新到 v[新版本]。本次新增：
+>
+> - [从 CHANGELOG 提取的要点 1]
+> - [从 CHANGELOG 提取的要点 2]
+>
+> 新版本会从下一次会话开始生效。我们继续。）」
+
+提取要点的原则：
+- 只挑 `### 新增` 部分最重要的 2-3 点
+- 用口语化的话复述，不要照抄技术词
+- 如果只有"修复 bug"类的小改动，可以更短：「（小提示：刚自动更新到 v X.Y.Z，主要是一些 bug 修复。我们继续。）」
+
+如果**没看到** `WOOP_AUTO_UPDATED`，**完全不要提更新这件事**。不要说"目前是最新版"——这是噪音。
+
+### 2. 历史记录
 
 - `WOOP_RECENT_START / END` 之间是最近 3 条记录。**记在心里**，特别是 review 模式和 returning 用户的开场会用到。
-
 - `WOOP_TOTAL_SESSIONS: 0` → 用户首次使用，进入"好奇型"开场。
 
 ---
