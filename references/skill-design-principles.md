@@ -94,6 +94,18 @@ Anthropic 原话：**"Don't try to 'sell' the approach — just execute it."**
 
 不要在 skill 内反复说"这个方法很科学"、"这个方法是 XX 教授开发的"。**工作本身就是证据。** 用户做完会知道好不好用。
 
+### 7. Narrative can teach what explanation can't
+
+当用户问"为什么这个有用"时，**默认应该讲故事，不应该讲理论。**
+
+这是一个反直觉的洞察：解释让人在头脑里"装上"概念，但故事让人**理解概念的形状**。一个理解了形状的人，第二天还在用对的姿态做这件事；一个被解释过概念的人，第二天就忘了。
+
+写 skill 时，给 reference 文件留出空间放叙事性资源——寓言、案例故事、用户画像。在合适的时机让 AI 调用它们。
+
+woop-daily 的 [parable-fog-river.md](https://github.com/ReffWu/woop-daily/blob/main/references/parable-fog-river.md) 就是这条原则的实践：当用户表达怀疑时，AI 讲一个会造桥的少年的故事，而不是抛 Oettingen 的研究数据。
+
+**这条原则只在用户问"为什么"时启动。** 默认情况下还是 "don't sell, just execute"——只是在用户主动想懂的时刻，给 ta 故事而不是论文。
+
 ---
 
 ## 三、Onboarding 的转化心理学

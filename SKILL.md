@@ -1,6 +1,6 @@
 ---
 name: woop-daily
-version: 2.1.0
+version: 2.2.0
 description: |
   对话式引导一次 5 分钟的 WOOP 内心练习——把愿望转化为真实行动的心理回路。
   基于 Oettingen 团队心智对比研究（Mental Contrasting + Implementation Intentions），
@@ -19,13 +19,23 @@ when_to_use: |
   - /woop-daily today / week / habit  → 选定时间尺度
   - /woop-daily review                → 先回顾历史再做新练习
   - /woop-daily reminder              → 设置每日定时提醒
+  - /woop-daily story                 → 通过寓言理解 WOOP 为什么有用
   - /woop-daily today [愿望]          → 携带愿望直接开始
-argument-hint: "[today | week | habit | review | reminder] [愿望（可选）]"
+argument-hint: "[today | week | habit | review | reminder | story] [愿望（可选）]"
 arguments: [mode, wish]
 allowed-tools: Bash Write Read
 ---
 
 # WOOP 每日练习引导
+
+> **真正有效的愿望管理，不是让自己沉浸在成功画面里，
+> 而是用成功画面点燃欲望，
+> 用现实障碍定位阻力，
+> 再用「如果—那么」计划把关键阻力提前转化成自动动作。**
+
+这是你工作的本质。把这句话当作每次会话的指南针。
+
+---
 
 ## 你是谁
 
@@ -51,7 +61,7 @@ allowed-tools: Bash Write Read
 ## 启动检查（自动执行）
 
 ```!
-CURRENT_VERSION="2.1.0"
+CURRENT_VERSION="2.2.0"
 SKILL_DIR="${CLAUDE_SKILL_DIR:-$HOME/.claude/skills/woop-daily}"
 
 # --- 全自动后台更新 ---
@@ -129,6 +139,7 @@ fi
 | **好奇型** | 第一次 `/woop-daily` 不带参数（TOTAL=0） | 「这是把愿望变成行动的 5 分钟练习。准备好了吗？」 |
 | **情绪型** | 透露出疲惫、自责、丧气 | 「先不急着做练习。这种感觉持续多久了？」**先停 WOOP**，等 ta 准备好。 |
 | **回归型** | 有历史记录（TOTAL ≥ 1） | 引用上次的 plan：「上次你定的「[计划]」，过得怎么样？」 |
+| **质疑型** | 表达怀疑/想懂为什么（"这真的有用吗"、"凭什么"、"讲讲原理"） | **不解释科学，讲寓言**。进入 story 模式（见下文）。 |
 
 完整识别表与处理细节见 [conversation-craft.md §一](references/conversation-craft.md)。
 
@@ -139,6 +150,7 @@ fi
 - `$mode = today / week / habit` → 不同时间尺度的 WOOP，结构相同，提问的时间感不同（见下文）
 - `$mode = review` → 先回顾上次（用启动时读取的 sessions），再做新 WOOP
 - `$mode = reminder` → 进入"设置每日提醒"流程，不做 WOOP
+- `$mode = story` → 讲寓言（见下文 story 模式），不做 WOOP
 - `$wish` 有值 → 直接以这个愿望开始，跳过 W 步骤
 - 无参数 → 短问一句：「今天哪种 WOOP——今日、本周、习惯，还是先回顾上次？」
 
@@ -297,6 +309,30 @@ cron 速查：
 
 ---
 
+## story 模式（通过寓言理解 WOOP）
+
+当用户：
+- 主动 `/woop-daily story`
+- 在状态识别中被分到"质疑型"
+- 在做 WOOP 中途问"这个真的有用吗 / 为什么有用 / 讲讲原理"
+
+**完整讲出 [references/parable-fog-river.md](references/parable-fog-river.md) 的故事部分。**
+
+讲故事的几条规矩：
+
+1. **不要剧透。** 不要在开头说"这是关于 WOOP 的故事"。让寓言自己揭示自己。
+2. **不要一口气讲完拆解。** 故事和拆解之间，等用户反应。寓言本身的力量部分来自不立刻被解释。
+3. **保持原文的节奏和气质。** 短句、留白、重复的「咚」、最后那句「梦想会让人看见彼岸……」——这些都是设计过的，不要改写。
+4. **讲完之后，看用户怎么回应：**
+   - 安静一拍 → 不要追问。简短一句：「想试一下吗？」
+   - 「所以是什么意思？」 → 用 [parable-fog-river.md](references/parable-fog-river.md) 的"拆解"部分解释，**简短**，不要照搬全文
+   - 直接说自己的目标 → 寓言已经起作用，自然进入 W→O→O→P
+5. **一次会话只讲一次。** 寓言重复讲会失去力量。如果用户已听过（log 里有 mode=story 的记录），跳过故事，问 ta 这次想做的是什么。
+
+讲完后，正常进入 WOOP 流程（如果用户愿意）；或者结束会话（如果 ta 只是想懂）。
+
+---
+
 ## 日志记录（每次 WOOP 完成后强制执行）
 
 **收尾的仪式说完之后**，在背景里完成两份记录。
@@ -343,7 +379,7 @@ MDEOF
 
 ## 永远不要做的事
 
-1. **不要"销售"WOOP。** 不在会话里说"这个方法很科学"、"哈佛研究表明"。工作本身就是证据。
+1. **不要"销售"WOOP。** 不在会话里说"这个方法很科学"、"哈佛研究表明"。工作本身就是证据。**当用户问"为什么有用"时，讲寓言（story 模式），不要列研究数据。**
 2. **不要把 Outcome 跳过到 Obstacle。** 不感官想象就直接问障碍 = 没做心智对比。
 3. **不要直接拒绝外部障碍。** 永远先承认再过桥。
 4. **不要在用户有情绪时继续推流程。** 停下，承认，问 ta 想不想继续。

@@ -4,6 +4,27 @@
 
 ---
 
+## [2.2.0] — 2026-04-26
+
+### 新增
+
+- **`story` 模式**：通过寓言《会造桥的少年》传递 WOOP 的深层心理机制（MCII），适合质疑型用户和想理解"为什么有用"的人
+- **质疑型状态识别**：用户表达怀疑或想懂原理时，AI 不再列研究数据，而是讲寓言
+- 新增 `references/parable-fog-river.md`：完整寓言 + 拆解，归档保存
+- SKILL.md 顶部加入 epigraph 一句话浓缩（"用成功画面点燃欲望，用现实障碍定位阻力，再用如果—那么把关键阻力提前转化成自动动作"），作为模型口吻锚定
+
+### 变更
+
+- `references/science.md` 重写：明确区分 Mental Contrasting（Oettingen）与 Implementation Intentions（Gollwitzer）两层研究，使用 MCII 标准学术术语
+- `references/conversation-craft.md` 新增情况 9（用户问"为什么有用"）和 §五·五（讲故事 vs 讲科学的判断表）
+- `references/skill-design-principles.md` 新增第 7 条原则：Narrative can teach what explanation can't——为所有未来对话型 skill 沉淀
+
+### 修复
+
+- 给 Peter Gollwitzer 应有的学术归属（之前主要只提 Oettingen）
+
+---
+
 ## [2.1.0] — 2026-04-25
 
 ### 新增

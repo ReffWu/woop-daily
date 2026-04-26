@@ -36,6 +36,7 @@ WOOP（Wish · Outcome · Obstacle · Plan）是纽约大学心理学教授 Gabr
 | `/woop-daily habit` | 习惯养成 WOOP |
 | `/woop-daily review` | 先回顾上次，再做新练习 |
 | `/woop-daily reminder` | 设置每日定时提醒（基于 OpenClaw cron） |
+| `/woop-daily story` | 通过寓言理解 WOOP 为什么有用（适合"我不太相信"的时候） |
 | `/woop-daily today 早睡` | 携带愿望直接开始，跳过第一步提问 |
 
 AI 也会根据上下文**自动触发**（无需输入 `/`），当你说"我想推进某事"、"帮我设定目标"、"做个 WOOP"时。
@@ -118,22 +119,25 @@ Claude：很好。今天的 WOOP：
 - **期望值感知**：信心低时 WOOP 帮你明智放弃，而不是硬撑
 - **一次只做一个**：聚焦比多多益善有效
 
-### 对话设计层面（v2.0 重塑）
+### 对话设计层面（v2.0+ 重塑）
 - **Listen first, then guide**：每次 substantive share 之后先简短承认，再问下一个问题
 - **Earned empathy**：先承认用户的挣扎（包括外部障碍），再温和拉回到框架
-- **Read entry energy**：散乱型、专注型、好奇型、情绪型、回归型——5 种状态 5 种开场
+- **Read entry energy**：散乱型、专注型、好奇型、情绪型、回归型、质疑型——6 种状态 6 种开场
 - **Sit with silence**：用户说"不知道"时，不要急推
 - **Mark the close**：仪式化收尾（"你装了一个心理回路"），不要用日志记录作为结尾
 - **Don't sell**：永不吹"科学验证"。工作本身就是证据
+- **Narrative over explanation**：用户问"为什么有用"时，讲寓言不讲科学。故事传递理解的形状，理论传递事实的颗粒
 
 ## 文件结构
 
 ```
 woop-daily/
 ├── SKILL.md                              # 主文件 / 流程地图
+├── CHANGELOG.md                          # 标准变更日志
 └── references/
-    ├── conversation-craft.md             # 对话艺术：节奏、承认、特殊情况
-    ├── science.md                        # 心理机制：每一步的 why
+    ├── conversation-craft.md             # 对话艺术：节奏、承认、9 种特殊情况
+    ├── parable-fog-river.md              # 寓言《会造桥的少年》+ MCII 拆解
+    ├── science.md                        # 心理机制：MCII = Oettingen + Gollwitzer
     └── skill-design-principles.md        # 通用经验：构建任何对话型 skill 的最佳实践
 ```
 
