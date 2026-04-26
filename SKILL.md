@@ -1,6 +1,6 @@
 ---
 name: woop-daily
-version: 1.0.0
+version: 1.1.0
 description: |
   每日 WOOP 练习引导。帮用户花 5 分钟把愿望转化为真实行动，基于 Oettingen 团队心智对比研究（Mental Contrasting + Implementation Intentions）。
 metadata:
@@ -18,6 +18,7 @@ when_to_use: |
   - /woop-daily today [愿望]  → 携带愿望直接开始（跳过第一步提问）
 argument-hint: "[today | week | habit | review] [愿望（可选）]"
 arguments: [mode, wish]
+allowed-tools: Bash Write
 ---
 
 # WOOP 每日练习引导
@@ -28,9 +29,52 @@ arguments: [mode, wish]
 
 ---
 
-## 首次引导（自动触发时）
+## 启动检查
 
-如果用户没有主动输入 `/woop-daily`（即由关键词自动触发），在开始前先简短介绍：
+```!
+# 检查更新
+CURRENT_VERSION="1.1.0"
+SKILL_DIR="${CLAUDE_SKILL_DIR:-$(dirname "$0")}"
+LATEST=$(clawhub inspect woop-daily 2>/dev/null | grep "Latest:" | awk '{print $2}' | tr -d '[:space:]')
+if [ -n "$LATEST" ] && [ "$LATEST" != "$CURRENT_VERSION" ]; then
+  echo "WOOP_UPDATE_AVAILABLE: $LATEST"
+else
+  echo "WOOP_VERSION_OK: $CURRENT_VERSION"
+fi
+
+# 初始化日志目录
+mkdir -p ~/.woop-daily
+
+# 读取最近 3 条会话记录（供 review 模式使用）
+if [ -f ~/.woop-daily/sessions.jsonl ]; then
+  RECENT=$(tail -3 ~/.woop-daily/sessions.jsonl 2>/dev/null)
+  echo "WOOP_RECENT_SESSIONS_START"
+  echo "$RECENT"
+  echo "WOOP_RECENT_SESSIONS_END"
+  TOTAL=$(wc -l < ~/.woop-daily/sessions.jsonl | tr -d ' ')
+  echo "WOOP_TOTAL_SESSIONS: $TOTAL"
+else
+  echo "WOOP_TOTAL_SESSIONS: 0"
+fi
+```
+
+启动后处理 bash 输出：
+
+- 若看到 `WOOP_UPDATE_AVAILABLE: <版本>`，在会话**开始前**告知用户：
+  > 「WOOP Daily 有新版本 <版本> 可用。运行 `clawhub update woop-daily` 更新，或继续使用当前版本。」
+  然后继续正常流程，不中断。
+
+- 若看到 `WOOP_TOTAL_SESSIONS: 0`，这是用户第一次使用，进入首次引导流程。
+
+- `WOOP_RECENT_SESSIONS_START` 和 `WOOP_RECENT_SESSIONS_END` 之间的内容是最近会话记录，保存在内存中供 review 模式使用。
+
+---
+
+## 首次引导（第一次使用 或 自动触发时）
+
+满足以下任一条件时，在开始前先简短介绍：
+- `WOOP_TOTAL_SESSIONS` 为 0（第一次使用）
+- 用户没有主动输入 `/woop-daily`（由关键词自动触发）
 
 > 「我来带你做一个 WOOP 练习——一个经科学验证的 5 分钟目标练习，比单纯正向思考有效得多。准备好了吗？」
 
@@ -83,8 +127,6 @@ arguments: [mode, wish]
 
 **核心原则：障碍必须是内在的，不是外部环境。**
 
-原因：我们对内在障碍有控制权，WOOP 的力量来自对自己内心的诚实面对。
-
 > 「现在，把刚才那个美好画面放一放，转过来看看自己的内心——是什么，你内心里的什么，可能会阻止你？不是外部的困难，而是你自己内心的障碍。」
 
 常见内在障碍类型（识别用，不要替用户想）：情绪（疲惫、焦虑、害怕失败）、心理模式（拖延、完美主义）、内心声音（"还没准备好"、"做不好"）。
@@ -130,7 +172,7 @@ arguments: [mode, wish]
 
 ### 模式四：回顾 WOOP（review）
 
-先回顾（约 1-2 分钟），再做新练习：
+先用启动时读取的 `WOOP_RECENT_SESSIONS` 数据做回顾（约 1-2 分钟）：
 
 > 「上次的计划，用上了吗？那个'如果-那么'有机会触发吗？」
 
@@ -156,6 +198,54 @@ arguments: [mode, wish]
 - 不把 Plan 做成 to-do 清单（保持"如果-那么"格式）
 - 不一次做多个 WOOP
 - 不评判愿望的大小或内容
+
+---
+
+## 会话结束：写入日志
+
+**每次完成 WOOP 四步后**，必须执行以下日志记录步骤。这是强制要求，不可跳过。
+
+### 1. 构建 JSON 记录（追加到 sessions.jsonl）
+
+用 Bash 工具执行：
+
+```bash
+mkdir -p ~/.woop-daily
+cat >> ~/.woop-daily/sessions.jsonl << 'JSONEOF'
+{"ts":"<ISO8601时间>","mode":"<today|week|habit|review>","wish":"<愿望原文>","outcome":"<最好结果原文>","obstacle":"<内在障碍原文>","plan":"<如果-那么计划原文>"}
+JSONEOF
+```
+
+将 `<...>` 替换为本次会话的真实内容。时间格式示例：`2026-04-25T22:30:00+08:00`。
+
+### 2. 写入人类可读日志（追加到 log.md）
+
+用 Bash 工具执行：
+
+```bash
+cat >> ~/.woop-daily/log.md << 'MDEOF'
+
+---
+
+## <日期时间，如 2026-04-25 22:30> · <模式，如 今日>
+
+**🎯 愿望：** <愿望原文>
+
+**✨ 最好结果：** <最好结果原文>
+
+**🧱 内在障碍：** <内在障碍原文>
+
+**📋 如果-那么计划：** <计划原文>
+
+MDEOF
+```
+
+### 3. 告知用户
+
+日志写入成功后，告知用户：
+> 「已记录到 `~/.woop-daily/log.md`。共 <N> 条记录。」
+
+若写入失败（Bash 报错），不中断会话，静默跳过。
 
 ---
 
